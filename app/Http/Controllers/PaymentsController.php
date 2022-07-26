@@ -6,36 +6,27 @@ use Illuminate\Http\Request;
 
 use Stripe;
 
+
 class PaymentsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-//        $stripe = new \Stripe\StripeClient('sk_test_BQokikJOvBiI2HlWgH4olfQ2');
-//        $customer = $stripe->customers->create([
-//            'description' => 'example customer',
-//            'email' => 'email@example.com',
-//            'payment_method' => 'pm_card_visa',
-//        ]);
-//        dd($customer);
-//        echo $customer;
-//        $priceInPence = $price;
+    public function getCheckoutSession($name, $price) {
+
+//        dd($name);
+        $price = $price*100;
+//        $key = config('services.stripe.secret');
+//        $stripe = new \Stripe\StripeClient($key);
         $stripe = new \Stripe\StripeClient(
             'sk_test_4eC39HqLyjWDarjtT1zdp7dc'
         );
         $checkout = $stripe->checkout->sessions->create([
-            'success_url' => 'https://example.com/success',
-            'cancel_url' => 'https://example.com/cancel',
+            'success_url' => 'http://127.0.0.1:8001/success',
+            'cancel_url' => 'http://127.0.0.1:8001/products',
             'line_items' => [
                 [
                     'price_data' => [
                         'currency' => 'GBP',
-                        'product_data' => ['name' => 'Shoes'],
-                        'unit_amount' => 555,
+                        'product_data' => ['name' => $name],
+                        'unit_amount' => $price,
                     ],
                     'quantity' => 1,
                 ],
@@ -43,10 +34,53 @@ class PaymentsController extends Controller
             'mode' => 'payment',
         ]);
 
-//        dd($checkout);
-        return view ('payments/index');
-//        return view('payments/index', ['price' => $priceInPence, 'name' => $productName]);
+//        dd($checkout["url"]);
+        $stripeUrl = $checkout["url"];
+//        dd($stripeUrl);
+        return redirect()->away($stripeUrl);
+    }
 
+
+    public function stripeWebhook(Request $request) {
+        dd('Hey');
+        info('stripeWebhook');
+
+        $endpoint_secret = env('WEBHOOK_SECRET');
+        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+        $payload = @file_get_contents('php://input');
+        try {
+            $event = \Stripe\Webhook::constructEvent(
+                $payload, $sig_header, $endpoint_secret
+            );
+        } catch(\Stripe\Exception\SignatureVerificationException $e) {
+            // Invalid signature
+            echo '⚠️  Webhook error while validating signature.';
+            http_response_code(400);
+            exit();
+        }
+
+        if ($event->type == 'payment_intent.succeeded') {
+            // validate purchase
+            info('ALL DONE!!!');
+            dd('Hey');
+        }
+
+
+        return response()->json(['status'=>'success']);
+    }
+
+
+
+
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        //
     }
 
     /**
@@ -67,44 +101,7 @@ class PaymentsController extends Controller
      */
     public function store(Request $request)
     {
-        $stripe = new \Stripe\StripeClient(
-            'sk_test_4eC39HqLyjWDarjtT1zdp7dc'
-        );
-        $customer = $stripe->checkout->sessions->create([
-            'success_url' => 'https://example.com/success',
-            'cancel_url' => 'https://example.com/cancel',
-            'line_items' => [
-                [
-                    'price' => $request->input('price'),
-                    'quantity' => 2,
-                ],
-            ],
-            'mode' => 'payment',
-        ]);
-        echo $customer;
-
-//        $stripe = new \Stripe\StripeClient('sk_test_BQokikJOvBiI2HlWgH4olfQ2');
-//        $customer = $stripe->customers->create([
-//            'description' => 'example customer',
-//            'email' => 'email@example.com',
-//            'payment_method' => 'pm_card_visa',
-//        ]);
-//        dd($customer);
-//        echo $customer;
-
-
-
-//        Stripe\Stripe::setApiKey(config('STRIPE_SECRET'));
-//        Stripe\Charge::create ([
-//            "amount" => 100 * 100,
-//            "currency" => "usd",
-//            "source" => $request->stripeToken,
-//            "description" => "This payment is tested purpose"
-//        ]);
-//
-//        Session::flash('success', 'Payment successful!');
-//
-//        return back();
+        //
     }
 
     /**

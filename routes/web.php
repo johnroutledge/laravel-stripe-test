@@ -20,3 +20,8 @@ Route::resource('products', ProductsController::class)->except('show', 'edit', '
 
 Route::get('/payments', [PaymentsController::class, 'index'])->name('payments.index');
 //Route::post('/payments', [PaymentsController::class, 'store'])->name('payments.store');
+
+Route::get('/getCheckoutSession/{name}/{price}', [PaymentsController::class, 'getCheckoutSession'])->name('getCheckoutSession');
+
+Route::get('/success', function() { return view('products.index');});
+//Route::get('/cancel', function() { return view('products.index');});

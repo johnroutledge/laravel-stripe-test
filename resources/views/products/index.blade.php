@@ -20,7 +20,7 @@
                     <tr>
                         <td>{{ $product->name }}</td>
                         <td>£{{ $product->price }}</td>
-                        <td><button><a id="edit-cancel" href="{{ route('payments.index', ['name' => $product->name, 'price' => $product->price]) }}">Checkout</a></button></td>
+                        <td><button><a id="edit-cancel" href="{{ route('getCheckoutSession', ['name' => $product->name, 'price' => $product->price]) }}">Checkout</a></button></td>
                     </tr>
                 @endforeach
             </tbody>
