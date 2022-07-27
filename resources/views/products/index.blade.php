@@ -20,7 +20,8 @@
                     <tr>
                         <td>{{ $product->name }}</td>
                         <td>£{{ $product->price }}</td>
-                        <td><button><a id="edit-cancel" href="{{ route('getCheckoutSession', ['name' => $product->name, 'price' => $product->price]) }}">Checkout</a></button></td>
+                        <td><button class="btn btn-success"><a id="edit-cancel" href="{{ route('getCheckoutSession', ['name' => $product->name, 'price' => $product->price]) }}">Checkout</a></button></td>
+                        <td><button class="btn btn-secondary"><a id="edit-cancel" href="{{ route('orders.show', $product->id) }}">Orders</a></button></td>
                     </tr>
                 @endforeach
             </tbody>
@@ -30,36 +31,8 @@
     </div>
 
     <br>
-    <a href="{{ route('products.create') }}" id="create" title="add product">Add Product</a>
-
-{{--    <div id="app">--}}
-
-{{--        <example-component></example-component>--}}
-
-{{--        <checkout-component></checkout-component>--}}
-
-{{--    </div>--}}
-
-{{--    <div id="app">--}}
-{{--        <template>--}}
-{{--            <checkout-component></checkout-component>--}}
-
-{{--        </template>--}}
-{{--    </div>--}}
-
-    <template>
-        <stripe-checkout></stripe-checkout>
-    </template>
-
-    <script type="module">
-        import { StripeCheckout } from '@vue-stripe/vue-stripe';
-        export default {
-            components: {
-                StripeCheckout,
-            },
-        };
-    </script>
-
-{{--    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.4/dist/vue.js"></script>--}}
+    <button class="btn btn-primary">
+        <a href="{{ route('products.create') }}" id="create" title="add product">Add Product</a>
+    </button>
 
 @endsection

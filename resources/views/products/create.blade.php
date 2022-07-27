@@ -7,8 +7,8 @@
 {{--        @method('POST')--}}
         <input type="text" id="name-input" placeholder="Name" name="name">
         <input type="text" id="price-input" placeholder="Price" name="price">
-        <button type="submit" class="btn btn-save" title="save">Save</button>
-        <button type="submit" class="btn btn-cancel" title="back">
+        <button type="submit" class="btn btn-success" title="save">Save</button>
+        <button type="submit" class="btn btn-secondary" title="back">
             <a id="edit-cancel" href="{{ route('products.index') }}"></a>
             Cancel
         </button>

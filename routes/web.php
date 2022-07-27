@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\PaymentsController;
+use App\Http\Controllers\OrdersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,12 +17,8 @@ use App\Http\Controllers\PaymentsController;
 */
 
 Route::resource('products', ProductsController::class)->except('show', 'edit', 'update', 'destroy');
-//Route::resource('payments', PaymentsController::class)->except('show', 'edit', 'update', 'destroy');
-
-Route::get('/payments', [PaymentsController::class, 'index'])->name('payments.index');
-//Route::post('/payments', [PaymentsController::class, 'store'])->name('payments.store');
-
+Route::resource('orders', OrdersController::class)->except('edit', 'update', 'destroy');
 Route::get('/getCheckoutSession/{name}/{price}', [PaymentsController::class, 'getCheckoutSession'])->name('getCheckoutSession');
-
-Route::get('/success', function() { return view('products.index');});
+Route::get('/success', [PaymentsController::class, 'create'])->name('create');
+//Route::get('/success', function() { return view('payments.create');});
 //Route::get('/cancel', function() { return view('products.index');});

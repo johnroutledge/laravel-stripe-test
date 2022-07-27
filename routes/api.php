@@ -19,4 +19,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/stripeWebhook', [PaymentsController::class, 'stripeWebhook'])->name('stripeWebhook');
+Route::post('/stripeWebhook', [PaymentsController::class, 'stripeWebhook'])->name('stripeWebhook');

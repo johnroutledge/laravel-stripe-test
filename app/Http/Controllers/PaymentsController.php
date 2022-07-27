@@ -2,25 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use http\QueryString;
 use Illuminate\Http\Request;
-
-use Stripe;
+use App\Models\Order;
+//use Stripe;
+use Stripe\Stripe;
+use Stripe\StripeClient;
 
 
 class PaymentsController extends Controller
 {
     public function getCheckoutSession($name, $price) {
 
-//        dd($name);
         $price = $price*100;
-//        $key = config('services.stripe.secret');
-//        $stripe = new \Stripe\StripeClient($key);
-        $stripe = new \Stripe\StripeClient(
+//        $stripe = new StripeClient(
+//            env('STRIPE_SECRET')
+//        );
+        $stripe = new StripeClient(
             'sk_test_4eC39HqLyjWDarjtT1zdp7dc'
         );
         $checkout = $stripe->checkout->sessions->create([
-            'success_url' => 'http://127.0.0.1:8001/success',
-            'cancel_url' => 'http://127.0.0.1:8001/products',
+            'success_url' => 'http://127.0.0.1:8000/success?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => 'http://127.0.0.1:8000/products',
             'line_items' => [
                 [
                     'price_data' => [
@@ -34,16 +37,12 @@ class PaymentsController extends Controller
             'mode' => 'payment',
         ]);
 
-//        dd($checkout["url"]);
         $stripeUrl = $checkout["url"];
-//        dd($stripeUrl);
         return redirect()->away($stripeUrl);
     }
 
 
     public function stripeWebhook(Request $request) {
-        dd('Hey');
-        info('stripeWebhook');
 
         $endpoint_secret = env('WEBHOOK_SECRET');
         $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
@@ -60,13 +59,16 @@ class PaymentsController extends Controller
         }
 
         if ($event->type == 'payment_intent.succeeded') {
-            // validate purchase
-            info('ALL DONE!!!');
-            dd('Hey');
+            // handle purchase and create order
+
+            $order = new Order();
+            $order->product_id = 1;
+            $order->stripe_id = $event->data->object->id;
+            $order->total = $event->data->object->amount;
+            $order->save();
+
         }
 
-
-        return response()->json(['status'=>'success']);
     }
 
 
@@ -88,9 +90,31 @@ class PaymentsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+
+        $stripe = new StripeClient(
+            'sk_test_4eC39HqLyjWDarjtT1zdp7dc'
+        );
+//        $stripe = new StripeClient(
+//            env('STRIPE_SECRET')
+//        );
+        $checkoutSession = $stripe->checkout->sessions->retrieve(
+            ($request->query('session_id'))
+        );
+
+//        dd($checkoutSession->customer_details);
+        $customerDetails = $checkoutSession->customer_details;
+        $orderTotal = $checkoutSession->amount_total / 100;
+
+        $order = new Order();
+        $order->product_id = 1;
+        $order->stripe_id = $checkoutSession->payment_intent;
+        $order->total = $orderTotal;
+        $order->save();
+
+        return view('payments/create', ['customerDetails' => $customerDetails]);
+
     }
 
     /**
