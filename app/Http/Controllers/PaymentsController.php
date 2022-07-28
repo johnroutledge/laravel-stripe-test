@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use http\QueryString;
+use http\Url;
 use Illuminate\Http\Request;
 use App\Models\Order;
 //use Stripe;
@@ -12,12 +13,16 @@ use Stripe\StripeClient;
 
 class PaymentsController extends Controller
 {
-    public function getCheckoutSession($name, $price) {
+
+    /**
+     * Creates Stripe checkout session
+     * and redirects user to Stripe checkout page
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function getCheckoutSession($name, $price, $id) {
 
         $price = $price*100;
-//        $stripe = new StripeClient(
-//            env('STRIPE_SECRET')
-//        );
         $stripe = new StripeClient(
             'sk_test_4eC39HqLyjWDarjtT1zdp7dc'
         );
@@ -36,6 +41,7 @@ class PaymentsController extends Controller
             ],
             'mode' => 'payment',
         ]);
+        session()->put('product_id', $id);
 
         $stripeUrl = $checkout["url"];
         return redirect()->away($stripeUrl);
@@ -60,9 +66,9 @@ class PaymentsController extends Controller
 
         if ($event->type == 'payment_intent.succeeded') {
             // handle purchase and create order
-
+            $product_id = session()->get('product_id');
             $order = new Order();
-            $order->product_id = 1;
+            $order->product_id = $product_id;
             $order->stripe_id = $event->data->object->id;
             $order->total = $event->data->object->amount;
             $order->save();
@@ -70,10 +76,6 @@ class PaymentsController extends Controller
         }
 
     }
-
-
-
-
 
     /**
      * Display a listing of the resource.
@@ -96,24 +98,21 @@ class PaymentsController extends Controller
         $stripe = new StripeClient(
             'sk_test_4eC39HqLyjWDarjtT1zdp7dc'
         );
-//        $stripe = new StripeClient(
-//            env('STRIPE_SECRET')
-//        );
         $checkoutSession = $stripe->checkout->sessions->retrieve(
             ($request->query('session_id'))
         );
 
-//        dd($checkoutSession->customer_details);
         $customerDetails = $checkoutSession->customer_details;
         $orderTotal = $checkoutSession->amount_total / 100;
+        $product_id = session()->get('product_id');
 
         $order = new Order();
-        $order->product_id = 1;
+        $order->product_id = $product_id;
         $order->stripe_id = $checkoutSession->payment_intent;
         $order->total = $orderTotal;
         $order->save();
 
-        return view('payments/create', ['customerDetails' => $customerDetails]);
+        return view('payments/create', ['customerDetails' => $customerDetails, 'order' => $order]);
 
     }
 

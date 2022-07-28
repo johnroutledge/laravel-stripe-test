@@ -18,7 +18,5 @@ use App\Http\Controllers\OrdersController;
 
 Route::resource('products', ProductsController::class)->except('show', 'edit', 'update', 'destroy');
 Route::resource('orders', OrdersController::class)->except('edit', 'update', 'destroy');
-Route::get('/getCheckoutSession/{name}/{price}', [PaymentsController::class, 'getCheckoutSession'])->name('getCheckoutSession');
+Route::get('/getCheckoutSession/{name}/{price}/{id}', [PaymentsController::class, 'getCheckoutSession'])->name('getCheckoutSession');
 Route::get('/success', [PaymentsController::class, 'create'])->name('create');
-//Route::get('/success', function() { return view('payments.create');});
-//Route::get('/cancel', function() { return view('products.index');});

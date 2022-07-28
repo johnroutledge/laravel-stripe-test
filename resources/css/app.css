@@ -1,5 +1,10 @@
 @import 'bootstrap/dist/css/bootstrap';
+@import url('https://fonts.googleapis.com/css2?family=Maven+Pro&display=swap');
 /*@import '@fortawesome/fontawesome-free/css/all';*/
+
+body {
+    font-family: 'Maven Pro', serif;
+}
 
 a {
     text-decoration: none;
@@ -9,4 +14,13 @@ a {
 button {
     margin-left: 5px;
     margin-top: 5px;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 10px 0;
+}
+
+td {
+    padding: 5px 0;
 }
